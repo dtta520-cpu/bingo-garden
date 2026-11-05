@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0
+
+- Animate newly completed rows, columns, and diagonals with a drawn light trail, staggered cell pulses, a Bingo badge, and a brief confetti burst.
+- Continue the same animation across vault refreshes; clear it on undo, board changes, editing, or view close. Reopening a completed board does not replay the effect.
+- Respect reduced-motion preferences and keep cells clickable during celebrations.
+
 ## 1.2.1
 
 - Prepare the first public GitHub release and community directory submission.

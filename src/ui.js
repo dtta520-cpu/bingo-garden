@@ -1,4 +1,5 @@
 const M = require('./model.js');
+const {BingoCelebration}=require('./celebration.js');
 function el(parent,tag,cls,text) {
   const node=parent.ownerDocument.createElement(tag);
   if(cls) node.className=cls;
@@ -46,6 +47,7 @@ class GardenScreen {
   constructor(root,host) {
     this.root=root;this.host=host;this.path=null;this.rows=[];this.archive=false;this.edit=false;this.busy=false;this.ticket=0;this.closed=false;this.celebrating=false;
     this.quickDrafts=new Map();this.quickErrors=new Map();this.drafts=new Map();this.saving=new Map();this.composing=false;this.pointerDown=false;
+    this.effects=new BingoCelebration(root);
     this.onPointerDown=()=>{this.pointerDown=true;};
     // A blur can save before the following click. Keep its target mounted until click dispatch finishes.
     this.onPointerUp=()=>{clearTimeout(this.pointerTimer);this.pointerTimer=setTimeout(()=>{this.pointerDown=false;if(this.renderPending&&!this.closed){this.renderPending=false;this.render();}},0);};
@@ -53,7 +55,7 @@ class GardenScreen {
     root.ownerDocument.addEventListener('pointerup',this.onPointerUp);
     root.ownerDocument.addEventListener('pointercancel',this.onPointerUp);
   }
-  destroy(){this.closed=true;this.ticket++;if(this.timer)clearTimeout(this.timer);clearTimeout(this.pointerTimer);this.root.removeEventListener('pointerdown',this.onPointerDown);this.root.ownerDocument.removeEventListener('pointerup',this.onPointerUp);this.root.ownerDocument.removeEventListener('pointercancel',this.onPointerUp);this.root.replaceChildren();}
+  destroy(){this.closed=true;this.ticket++;if(this.timer)clearTimeout(this.timer);this.effects.destroy();clearTimeout(this.pointerTimer);this.root.removeEventListener('pointerdown',this.onPointerDown);this.root.ownerDocument.removeEventListener('pointerup',this.onPointerUp);this.root.ownerDocument.removeEventListener('pointercancel',this.onPointerUp);this.root.replaceChildren();}
   async refresh(){
     const ticket=++this.ticket;
     try {
@@ -83,25 +85,32 @@ class GardenScreen {
     finally {this.busy=false;this.root.removeAttribute('aria-busy');}
   }
   celebrate(board,newLines){
+    if(this.closed||this.current()?.board.id!==board.id)return;
     this.celebrating=true;
     this.celebrationBoard=board.id;
+    this.celebrationLines=newLines;
     this.celebrationText=`✦ BINGO！${newLines.map(l=>l.label).join('、')}已点亮${board.reward ? ' · '+board.reward:''}`;
     const banner=this.root.querySelector('.bg-celebration');
     if(banner){banner.hidden=false;banner.textContent=this.celebrationText;}
-    this.root.querySelectorAll('.bg-winning').forEach(c=>{c.classList.remove('bg-pop');void c.offsetWidth;c.classList.add('bg-pop');});
+    if(!this.edit)this.effects.start(board,newLines);
     this.host.notice(`BINGO！完成 ${newLines.length} 条新连线 🎉`);
     if(this.timer)clearTimeout(this.timer);
     this.timer=setTimeout(()=>{this.celebrating=false;const current=this.root.querySelector('.bg-celebration');if(current)current.hidden=true;},6500);
   }
   render(){
+    if(this.closed)return;
     if(this.composing||this.pointerDown){this.renderPending=true;return;}
     const doc=this.root.ownerDocument;
     const focus=doc.activeElement?.getAttribute('data-focus-key');
     const selection=focus&&typeof doc.activeElement.selectionStart==='number'?[doc.activeElement.selectionStart,doc.activeElement.selectionEnd]:null;
     const scroll=this.root.scrollTop;
-    this.root.replaceChildren();
+    this.effects.detach();this.root.replaceChildren();
     this.root.classList.add('bg-root');
     const row=this.current(),board=row?.board;
+    if(this.celebrating&&(!board||board.id!==this.celebrationBoard||board.archived||
+      !this.celebrationLines.every(line=>line.indexes.every(i=>board.cells[i]?.done&&board.cells[i].title.trim())))){
+      this.celebrating=false;clearTimeout(this.timer);
+    }
     this.root.dataset.theme=board?.theme||'peach';
     const frame=el(this.root,'div','bg-frame');
     const mast=el(frame,'header','bg-masthead');
@@ -131,7 +140,7 @@ class GardenScreen {
         button(empty,'创建我的第一张棋盘','bg-btn bg-primary',()=>this.boardDialog());
         button(empty,'看看示例棋盘','bg-btn bg-quiet',()=>this.demo());
       }
-      this.footer(frame);return;
+      this.effects.stop();this.footer(frame);return;
     }
     const s=M.stats(board);
     const hero=el(frame,'section','bg-hero');
@@ -173,7 +182,7 @@ class GardenScreen {
     if(!board.archived)this.quickEntry(frame,row);
     const celebration=el(frame,'div','bg-celebration',this.celebrationBoard===board.id?this.celebrationText||'':'');celebration.setAttribute('role','status');celebration.setAttribute('aria-live','polite');celebration.hidden=!(this.celebrating&&this.celebrationBoard===board.id);
     const area=el(frame,'section','bg-board-area');
-    const grid=el(area,'div','bg-grid');grid.style.setProperty('--bg-cols',board.size);grid.setAttribute('role','group');grid.setAttribute('aria-label',board.title+' Bingo 棋盘');
+    const grid=el(area,'div','bg-grid');grid.dataset.boardId=board.id;grid.style.setProperty('--bg-cols',board.size);grid.setAttribute('role','group');grid.setAttribute('aria-label',board.title+' Bingo 棋盘');
     const winning=new Set(s.wins.flatMap(l=>l.indexes));
     board.cells.forEach((c,i)=>{
       if(this.edit&&!board.archived){this.cellEditor(grid,row,c,i,winning.has(i));return;}
@@ -200,6 +209,7 @@ class GardenScreen {
       for(const l of s.wins)el(wins,'span','bg-win-badge','✦ '+l.label);
     }
     this.footer(frame);
+    this.effects.render(this.edit?null:board);
     this.root.scrollTop=scroll;
     if(focus){const target=this.focusKey(focus);if(target&&selection)target.setSelectionRange(...selection);}
   }

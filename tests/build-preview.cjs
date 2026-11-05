@@ -1,6 +1,6 @@
 const fs=require('node:fs');const path=require('node:path');
 const base=path.resolve(__dirname,'..');
-const sources=['model','store','ui'].map(id=>JSON.stringify('./'+id+'.js')+':function(module,exports,require){'+fs.readFileSync(path.join(base,'src',id+'.js'),'utf8')+'\n}').join(',');
+const sources=['model','store','celebration','ui'].map(id=>JSON.stringify('./'+id+'.js')+':function(module,exports,require){'+fs.readFileSync(path.join(base,'src',id+'.js'),'utf8')+'\n}').join(',');
 const js=`const modules={${sources}};const cache={};function load(id){if(cache[id])return cache[id].exports;const m={exports:{}};cache[id]=m;modules[id](m,m.exports,load);return m.exports;}
 const {GardenScreen,el,button}=load('./ui.js');const {BoardStore}=load('./store.js');
 const key='bingo-garden-preview-v1';let data;try{data=JSON.parse(localStorage.getItem(key)||'{}')}catch{data={}}

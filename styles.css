@@ -72,7 +72,7 @@
 .bg-quick-hint {margin-top:7px;color:var(--bg-muted);font-size:10px;}
 .bg-quick .bg-form-error {margin-top:7px;}
 .bg-board-area {padding:18px 18px 0;background:var(--bg-card);border:1px solid var(--bg-line);border-radius:22px;box-shadow:var(--bg-shadow);}
-.bg-grid {display:grid;grid-template-columns:repeat(var(--bg-cols),minmax(0,1fr));gap:10px;}
+.bg-grid {position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(var(--bg-cols),minmax(0,1fr));gap:10px;}
 .bg-root .bg-cell {position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-width:0;min-height:108px;padding:26px 11px 19px;aspect-ratio:1.15;border:1px solid var(--bg-line);border-radius:14px;background:var(--bg-paper);color:var(--bg-ink);box-shadow:var(--bg-shadow);transition:background .16s,transform .16s,border-color .16s;}
 .bg-root .bg-cell:hover:not(:disabled) {transform:translateY(-2px);border-color:var(--bg-accent);}
 .bg-root .bg-cell.is-empty {border-style:dashed;background:transparent;box-shadow:none;color:var(--bg-muted);}
@@ -100,8 +100,21 @@
 .bg-footer span:last-child {font-size:9px;letter-spacing:.16em;white-space:nowrap;}
 .bg-celebration {padding:12px 16px;background:var(--bg-accent-soft);color:var(--bg-accent);border-radius:12px;margin-bottom:14px;font-size:13px;font-weight:650;overflow-wrap:anywhere;}
 .bg-celebration[hidden] {display:none;}
-.bg-pop {animation:bg-bloom .5s ease;}
-@keyframes bg-bloom {0%{transform:scale(1)}45%{transform:scale(.94)}75%{transform:scale(1.025)}100%{transform:scale(1)}}
+.bg-root .bg-line-pop {animation:bg-line-bloom 650ms ease both;animation-delay:var(--bg-pop-delay,0ms);}
+.bg-root .bg-bingo-effects {position:absolute;inset:0;z-index:4;pointer-events:none;overflow:clip;border-radius:14px;}
+.bg-root .bg-bingo-trails {position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+.bg-root .bg-bingo-line {stroke:var(--bg-accent);stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:bg-trace-line 1900ms ease-out both;}
+.bg-root .bg-bingo-glow {stroke-width:13px;opacity:.2;}
+.bg-root .bg-bingo-stroke {stroke-width:3px;opacity:.8;}
+.bg-root .bg-bingo-toast {position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:max-content;max-width:94%;padding:12px 25px;border:1px solid var(--bg-accent);border-radius:20px;background:var(--bg-card);color:var(--bg-accent);box-shadow:0 6px 25px #0002;transform:translate(-50%,-50%);animation:bg-bingo-arrive 1750ms cubic-bezier(.2,.8,.25,1) both;}
+.bg-root .bg-bingo-toast strong {font-size:clamp(26px,5cqw,40px);font-weight:850;letter-spacing:.1em;line-height:1.1;}
+.bg-root .bg-bingo-toast span {font-size:10px;white-space:nowrap;letter-spacing:.05em;}
+.bg-root .bg-bingo-confetti {position:absolute;width:6px;height:10px;border-radius:2px;background:var(--bg-burst-color);animation:bg-bingo-burst 1550ms ease-out both;}
+.bg-root .bg-bingo-confetti:nth-child(3n) {width:7px;height:7px;border-radius:50%;}
+@keyframes bg-line-bloom {0%,100%{transform:scale(1)}30%{transform:scale(.94)}65%{transform:scale(1.035);box-shadow:0 0 0 5px var(--bg-accent-soft)}}
+@keyframes bg-trace-line {0%{stroke-dashoffset:1}36%,78%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes bg-bingo-arrive {0%{opacity:0;transform:translate(-50%,-50%) scale(.7) rotate(-7deg)}22%{opacity:1;transform:translate(-50%,-50%) scale(1.06) rotate(2deg)}35%,75%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}100%{opacity:0;transform:translate(-50%,-65%) scale(.96)}}
+@keyframes bg-bingo-burst {0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}12%{opacity:1}70%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--bg-burst-x)),calc(-50% + var(--bg-burst-y))) rotate(var(--bg-burst-spin)) scale(.65)}}
 .bg-empty {text-align:center;padding:65px 24px 85px;}
 .bg-empty-art {font-size:65px;color:var(--bg-accent);line-height:1.4;}
 .bg-empty h1 {font-size:27px;margin:16px 0 12px;}
@@ -191,4 +204,5 @@
 }
 @media (prefers-reduced-motion:reduce) {
   .bg-root *, .bg-modal * {animation:none!important;transition:none!important;}
+  .bg-root .bg-bingo-effects {display:none;}
 }

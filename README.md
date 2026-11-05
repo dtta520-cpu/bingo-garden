@@ -4,15 +4,19 @@ Turn tasks into bingo boards inside Obsidian. Complete a row, column, or diagona
 
 **Chinese interface.** Free, MIT licensed, and fully local: no account, network requests, telemetry, subscriptions, or file access outside the vault. Boards are stored as Markdown files in `Bingo Garden/`. Sync is provided by your existing vault sync tool; this plugin does not provide a sync service or offline conflict merging.
 
-**Installation:** download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/dtta520-cpu/bingo-garden/releases/latest), place them in `<vault>/.obsidian/plugins/bingo-garden/`, reload Obsidian, and enable Bingo Garden in Community plugins. Requires Obsidian 1.14.4 or later. The community directory listing is not yet confirmed; manual installation is available now.
+**Installation:** download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/dtta520-cpu/bingo-garden/releases/latest), place them in `<vault>/.obsidian/plugins/bingo-garden/`, reload Obsidian, and enable Bingo Garden in Community plugins. Requires Obsidian 1.14.4 or later. See the [community listing](https://community.obsidian.md/plugins/bingo-garden) for its current public version and review status.
 
 ![Bingo Garden with example tasks](./screenshots/bingo-garden.png)
+
+New in 1.3.0: light trails, staggered cell pulses, a Bingo badge, and a brief confetti burst for newly completed lines. Animations respect reduced-motion settings and do not replay when reopening a board.
+
+![Line completion celebration with example tasks](./screenshots/line-celebration.png)
 
 ## 中文使用说明
 
 把想做的事情放进一张棋盘：完成一项，点亮一格；横、竖、对角线连成一线，就收获一次 Bingo。
 
-版本：1.2.1。适合个人使用。无需 Tasks 插件、账号、服务器或插件订阅。
+版本：1.3.0。适合个人使用。无需 Tasks 插件、账号、服务器或插件订阅。
 
 ## 安装
 
@@ -22,7 +26,7 @@ Turn tasks into bingo boards inside Obsidian. Complete a row, column, or diagona
 4. 重新加载 Obsidian。在「设置 → 第三方插件」中，按 Obsidian 提示允许使用社区插件，然后启用 **Bingo Garden**。
 5. 点击左侧的九宫格图标，或在命令面板中运行 **Bingo Garden: 打开棋盘**。
 
-社区目录尚未确认上架，当前请从 [GitHub Releases](https://github.com/dtta520-cpu/bingo-garden/releases) 下载三个运行文件手动安装。GitHub 公开发布与社区目录上架是两个独立步骤。
+可在[社区条目](https://community.obsidian.md/plugins/bingo-garden)查看当前公开版本与审核状态，也可从 [GitHub Releases](https://github.com/dtta520-cpu/bingo-garden/releases) 下载三个运行文件手动安装。
 
 手机端也需要安装和启用插件。最方便的方式是通过你的同步方案同步插件文件，或将上述三个运行文件放入手机端同一笔记库的相应插件目录，再重新加载并启用。不同同步工具对 `.obsidian` 的支持不同：仅同步笔记文件，不代表插件也已安装。iOS 的隐藏目录操作可能需要借助同步工具；本版未在 iPhone / Android 真机安装验证。
 
@@ -37,6 +41,7 @@ Turn tasks into bingo boards inside Obsidian. Complete a row, column, or diagona
 - **自动搭配图标：** 新增事项会按名称匹配图标（如读书 📖、散步 🏃、工作 💻），相同类别优先使用不同图标；未匹配到类别时从多种图标中分配。图标随事项保存，重新打开或点击完成不会重新分配。详情中的「按事项内容自动搭配图标」可开关；手动选择图标后会保留你的选择。自动模式下，修改事项名称会重新匹配。旧版已有事项和自选图标保持原样，需要自动匹配时在详情里开启。
 - **清空格子：** 在编辑窗口中清空事项名称并保存，同时清除该格说明与完成状态。
 - **连线：** 同一行、同一列或一条对角线的所有格子都有事项且全部完成，才算一次 Bingo。空格不算完成，没有自动赠送的中心格。
+- **连线动画：** 新完成一行、一列或对角线时，格子依次轻弹、光线划过，弹出 BINGO 和短暂彩纸。动画约 2 秒，可继续点击；已经完成的连线不会在重新打开时重复播放。系统开启「减少动态效果」时仅保留静态提示。
 - **奖励：** 连成一线时显示你设置的奖励和庆祝效果。奖励是给自己的提示，本版不包含积分兑换商城。
 - **调整尺寸：** 在「更多 → 棋盘设置」中修改。已有事项按原先顺序重新排列、完成记录保留，连线重新计算；如果缩小会装不下已有内容，操作会被拒绝。
 - **打乱：** 只能打乱尚无完成记录的棋盘，避免改变已有连线。
@@ -93,6 +98,7 @@ node tests/build-preview.cjs
 - 浏览器交互验证：新建、添加、勾选、Bingo、撤销、刷新后保存、编辑冲突、复制下一轮、归档与恢复。
 - 1.1.0 输入交互验证：回车添加、多行粘贴、Shift + Enter 换行、中文组合输入事件保护、草稿与光标刷新保留、满格整批拒绝、写入失败后重试、重复回车防重、格内 Enter / Tab 连续编辑、Esc 恢复、失焦保存、同格冲突保护与完成编辑保存。
 - 1.2.0 新增 7 项图标测试，并完成界面验证：按内容匹配、同类分配、36 格通用图标去重、自动名称跟随、保留手选和旧版图标、重新打开保持一致，以及手机尺寸下的自动搭配开关。
+- 1.3.0 连线动画界面验证：只播放新连线、刷新时继续原有动画、撤销和切换后清理、一次完成四条线、减少动态效果、3×3–6×6 手机布局、缩放、深色模式，以及关闭视图后清理计时器和尺寸监听。
 - 320、390、768、1200 像素宽度的横向溢出检查，以及桌面、手机宽度、手机编辑窗口与深色模式的截图人工检查。
 - 真实 Obsidian 1.14.4：使用独立的临时配置和空白测试笔记库，验证插件加载、25 格显示、5 格连线、点击完成后写入 Markdown、原生编辑窗口保存，以及插件卸载重载后保留内容。
 

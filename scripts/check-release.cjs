@@ -10,7 +10,7 @@ assert.equal(require('../versions.json')[manifest.version],manifest.minAppVersio
 assert.ok(manifest.description.length<=250&&manifest.description.endsWith('.'));
 assert.ok(manifest.author&&manifest.authorUrl);
 for(const file of ['main.js','manifest.json','styles.css','README.md','LICENSE'])assert.ok(fs.statSync(path.join(root,file)).size>0,file);
-for(const file of ['model','store','ui','main']){
+for(const file of ['model','store','celebration','ui','main']){
   const source=fs.readFileSync(path.join(root,'src',file+'.js'),'utf8');
   assert.ok(!/require\(['"](?:node:|fs['"]|electron['"])/.test(source),'Desktop-only runtime dependency: '+file);
 }
