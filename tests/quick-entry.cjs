@@ -1,0 +1,86 @@
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const {pathToFileURL}=require('node:url');const path=require('node:path');const fs=require('node:fs');const assert=require('node:assert/strict');
+(async()=>{
+  const browser=await chromium.launch({channel:'msedge',headless:true});
+  try {
+    const page=await browser.newPage({viewport:{width:1100,height:1300}});
+    const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await page.goto(pathToFileURL(path.resolve(__dirname,'../preview.html')).href);
+    await page.evaluate(()=>localStorage.clear());await page.reload();
+    await page.getByRole('button',{name:'创建我的第一张棋盘',exact:true}).click();
+    await page.getByLabel('棋盘名称',{exact:true}).fill('快速输入体验');
+    await page.getByLabel('棋盘尺寸',{exact:true}).selectOption('3');
+    await page.getByRole('button',{name:'创建棋盘',exact:true}).click();
+    const quick=page.getByRole('textbox',{name:'快速输入待办',exact:true});
+    const title=n=>page.getByRole('textbox',{name:n+'号格事项名称',exact:true});
+    const saved=()=>page.evaluate(async()=>{const s=window.screenApp;return s.host.store.read(s.path)});
+    await quick.fill('整理资料');await quick.press('Enter');
+    await page.waitForFunction(()=>document.querySelectorAll('.bg-cell:not(.is-empty)').length===1);
+    assert.equal(await quick.inputValue(),'');assert.equal(await quick.evaluate(e=>e===document.activeElement),true);
+    await quick.fill('- [ ] 散步 20 分钟\n2. 读十页书');await quick.press('Enter');
+    await page.waitForFunction(()=>document.querySelectorAll('.bg-cell:not(.is-empty)').length===3);
+    assert.deepEqual((await saved()).cells.slice(0,3).map(c=>c.title),['整理资料','散步 20 分钟','读十页书']);
+    await quick.fill('先写下来');await quick.press('Shift+Enter');
+    assert.equal(await quick.inputValue(),'先写下来\n');assert.equal((await saved()).cells.filter(c=>c.title).length,3);
+    await quick.fill('中文草稿');
+    await quick.evaluate(e=>{e.setSelectionRange(2,2);e.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true}));});
+    await page.evaluate(()=>window.screenApp.refresh());
+    await quick.dispatchEvent('keydown',{key:'Enter',isComposing:true,keyCode:229});
+    assert.equal((await saved()).cells.filter(c=>c.title).length,3);
+    await quick.dispatchEvent('compositionend',{data:'草稿'});
+    assert.equal(await quick.inputValue(),'中文草稿');
+    await page.evaluate(()=>window.screenApp.refresh());
+    assert.deepEqual(await quick.evaluate(e=>[e.selectionStart,e.selectionEnd]),[2,2]);
+    const excess=Array.from({length:7},(_,i)=>'溢出 '+i).join('\n');
+    await quick.fill(excess);await quick.press('Enter');
+    await page.getByRole('alert').filter({hasText:'还有 6 个空格'}).waitFor();
+    assert.equal(await quick.inputValue(),excess);assert.equal((await saved()).cells.filter(c=>c.title).length,3);
+    // A failed disk write keeps the complete draft; the next attempt can recover.
+    await page.evaluate(()=>{const store=window.screenApp.host.store;const original=store.vault.process;store.vault.process=async(...args)=>{store.vault.process=original;throw Error('模拟写入失败')};});
+    await quick.fill('失败后保留');await quick.press('Enter');
+    await page.getByRole('alert').filter({hasText:'模拟写入失败'}).waitFor();assert.equal(await quick.inputValue(),'失败后保留');
+    await quick.press('Enter');await page.waitForFunction(()=>document.querySelectorAll('.bg-cell:not(.is-empty)').length===4);
+    // Repeated Enter during a slow write must add only once.
+    await page.evaluate(()=>{const store=window.screenApp.host.store;const original=store.vault.process;store.vault.process=async(...args)=>{store.vault.process=original;await new Promise(r=>setTimeout(r,250));return original(...args)};});
+    await quick.fill('只添加一次');await quick.press('Enter');await quick.press('Enter');
+    await page.waitForFunction(()=>document.querySelectorAll('.bg-cell:not(.is-empty)').length===5);
+    assert.equal((await saved()).cells.filter(c=>c.title==='只添加一次').length,1);
+    await page.getByRole('button',{name:'编辑格子',exact:true}).click();
+    await title(1).fill('直接改名称');await title(1).press('Enter');
+    await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='2号格事项名称');
+    assert.equal((await saved()).cells[0].title,'直接改名称');
+    await title(2).fill('Tab 连续填写');await title(2).press('Tab');
+    await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='3号格事项名称');
+    assert.equal((await saved()).cells[1].title,'Tab 连续填写');
+    await title(3).press('Shift+Tab');assert.equal(await title(2).evaluate(e=>e===document.activeElement),true);
+    await title(1).focus();await title(1).press('Shift+Tab');assert.equal(await title(1).evaluate(e=>e===document.activeElement),false);
+    await title(9).focus();await title(9).press('Tab');assert.equal(await title(9).evaluate(e=>e===document.activeElement),false);
+    await title(2).fill('取消这次修改');await title(2).press('Escape');assert.equal(await title(2).inputValue(),'Tab 连续填写');
+    await title(3).fill('离开格子自动保存');await quick.click();
+    await page.waitForFunction(()=>!window.screenApp.saving.size);assert.equal((await saved()).cells[2].title,'离开格子自动保存');
+    // Preserve active drafts through file refresh, and reject same-cell stale writes.
+    await title(1).fill('不能覆盖另一端');
+    await page.evaluate(async()=>{const s=window.screenApp;await s.host.store.update(s.path,b=>window.model.updateCell(b,b.cells[0].id,{title:'另一端最新内容'}));await s.refresh();});
+    assert.equal(await title(1).inputValue(),'不能覆盖另一端');
+    await title(1).press('Enter');await page.getByText('未保存 · Esc 恢复最新内容',{exact:true}).waitFor();
+    assert.equal((await saved()).cells[0].title,'另一端最新内容');assert.equal(await title(1).inputValue(),'不能覆盖另一端');
+    await title(1).press('Escape');assert.equal(await title(1).inputValue(),'另一端最新内容');
+    await title(6).fill('填写空格');await page.getByRole('button',{name:'✓ 完成编辑',exact:true}).click();
+    await page.getByRole('button',{name:'编辑格子',exact:true}).waitFor();assert.equal((await saved()).cells[5].title,'填写空格');
+    await page.reload();await quick.waitFor();assert.equal((await saved()).cells[5].title,'填写空格');
+    const qa=path.resolve(__dirname,'../../qa');fs.mkdirSync(qa,{recursive:true});
+    await quick.fill('喝一杯水\n给植物浇水');
+    await page.screenshot({path:path.join(qa,'quick-entry-desktop.png'),fullPage:true});
+    for(const width of [320,390,768,1200]){await page.setViewportSize({width,height:1100});assert.equal(await page.locator('#garden').evaluate(e=>e.scrollWidth>e.clientWidth+1),false,'quick overflow '+width);}
+    await page.setViewportSize({width:390,height:1100});await page.screenshot({path:path.join(qa,'quick-entry-mobile.png'),fullPage:true});
+    await page.getByRole('button',{name:'编辑格子',exact:true}).click();
+    await title(1).scrollIntoViewIfNeeded();await page.screenshot({path:path.join(qa,'inline-edit-mobile.png'),fullPage:true});
+    assert.equal(await page.locator('#garden').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);
+    await page.getByRole('button',{name:'✓ 完成编辑',exact:true}).click();
+    await page.locator('summary').click();await page.getByRole('button',{name:'归档棋盘',exact:true}).click();
+    await page.getByRole('button',{name:'返回棋盘',exact:true}).waitFor();assert.equal(await quick.count(),0);
+    assert.deepEqual(errors,[]);
+    fs.writeFileSync(path.join(qa,'quick-entry-results.json'),JSON.stringify({passed:true,checks:['enter-add','paste-lines','shift-enter','IME-enter','draft-refresh-selection','atomic-overflow','write-failure-recovery','double-enter','inline-enter-tab-shift-tab','escape','blur-save','same-cell-conflict-draft','finish-edit','reload','responsive','archive'],browserErrors:errors},null,2));
+    console.log('Quick entry and inline editing verification passed.');
+  }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1)});

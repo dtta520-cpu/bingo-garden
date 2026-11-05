@@ -1,0 +1,11 @@
+/main.js
+/preview.html
+/node_modules/
+/dist/
+*.zip
+*.log
+.DS_Store
+Thumbs.db
+.obsidian/
+.env
+.env.*
