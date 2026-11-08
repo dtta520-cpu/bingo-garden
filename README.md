@@ -8,6 +8,8 @@ Turn tasks into bingo boards inside Obsidian. Complete a row, column, or diagona
 
 ![Bingo Garden with example tasks](./screenshots/bingo-garden.png)
 
+New in 1.3.1: macOS installation instructions and native Obsidian validation. Board behavior is unchanged from 1.3.0.
+
 New in 1.3.0: light trails, staggered cell pulses, a Bingo badge, and a brief confetti burst for newly completed lines. Animations respect reduced-motion settings and do not replay when reopening a board.
 
 ![Line completion celebration with example tasks](./screenshots/line-celebration.png)
@@ -16,9 +18,11 @@ New in 1.3.0: light trails, staggered cell pulses, a Bingo badge, and a brief co
 
 把想做的事情放进一张棋盘：完成一项，点亮一格；横、竖、对角线连成一线，就收获一次 Bingo。
 
-版本：1.3.0。适合个人使用。无需 Tasks 插件、账号、服务器或插件订阅。
+版本：1.3.1。适合个人使用。无需 Tasks 插件、账号、服务器或插件订阅。
 
 ## 安装
+
+Mac 使用同一套插件文件，已在 macOS 的 Obsidian 1.14.5 中验证。具体步骤见 [Mac 安装说明](MACOS.md)。
 
 1. 解压安装包，找到 `bingo-garden` 文件夹。里面应直接包含 `main.js`、`manifest.json` 和 `styles.css`。
 2. 在你要使用的 Obsidian 笔记库中，打开 `.obsidian/plugins/` 文件夹；如果 `plugins` 不存在，创建它。
@@ -101,6 +105,7 @@ node tests/build-preview.cjs
 - 1.3.0 连线动画界面验证：只播放新连线、刷新时继续原有动画、撤销和切换后清理、一次完成四条线、减少动态效果、3×3–6×6 手机布局、缩放、深色模式，以及关闭视图后清理计时器和尺寸监听。
 - 320、390、768、1200 像素宽度的横向溢出检查，以及桌面、手机宽度、手机编辑窗口与深色模式的截图人工检查。
 - 真实 Obsidian 1.14.4：使用独立的临时配置和空白测试笔记库，验证插件加载、25 格显示、5 格连线、点击完成后写入 Markdown、原生编辑窗口保存，以及插件卸载重载后保留内容。
+- 2026-11-08，macOS 27.2 / Apple Silicon / Obsidian 1.14.5：在独立测试库中启用 1.3.0，创建 5×5 棋盘，批量添加 5 项，逐项勾选后显示 100% 完成、1 条 Bingo；重载后仍保留名称、奖励和 5 项完成状态。20 项自动测试及发布文件检查通过。
 
 待验证：iPhone / Android 真机。多端同步需要接入实际采用的同步工具后验证。
 

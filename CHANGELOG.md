@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1
+
+- 增加 Mac 安装说明和 macOS 27.2 / Apple Silicon / Obsidian 1.14.5 的真实操作验证记录。
+- 棋盘创建、批量添加、完成连线和重载保存已实测；20 项自动测试与发布文件检查通过。
+- 运行逻辑与 1.3.0 相同，现有棋盘无需迁移。
+
 ## 1.3.0
 
 - Animate newly completed rows, columns, and diagonals with a drawn light trail, staggered cell pulses, a Bingo badge, and a brief confetti burst.
