@@ -14,7 +14,8 @@
 }
 .theme-dark .bg-root[data-theme="sage"] {--bg-accent:#b2cfa6;--bg-accent-soft:#394b37;--bg-complete:#384c37;--bg-complete-ink:#d2e9c0;}
 .theme-dark .bg-root[data-theme="lavender"] {--bg-accent:#d2b5ef;--bg-accent-soft:#44374f;--bg-complete:#493c56;--bg-complete-ink:#ead8fb;}
-.bg-root {background:var(--bg-paper);overflow:auto;padding:0!important;container-type:inline-size;}
+.bg-root {background:var(--bg-paper);overflow:auto;padding:0;container-type:inline-size;}
+.workspace-leaf-content[data-type="bingo-garden-view"] .view-content.bg-root {padding:0;}
 .bg-root *, .bg-modal * {box-sizing:border-box;}
 .bg-frame {max-width:1080px;margin:0 auto;padding:32px 40px 22px;}
 .bg-root button,.bg-modal button,.bg-file-card button {font:inherit;cursor:pointer;box-shadow:none;height:auto;white-space:normal;color:var(--bg-ink);}
@@ -27,9 +28,10 @@
 .bg-root .bg-quiet,.bg-modal .bg-quiet {background:transparent;color:var(--bg-muted);}
 .bg-root .bg-btn:hover,.bg-modal .bg-btn:hover {filter:brightness(.96);}
 .bg-masthead {display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:24px;}
-.bg-brand {display:flex;align-items:center;gap:12px;}
-.bg-brand-mark {display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--bg-accent-soft);color:var(--bg-accent);font-size:34px;line-height:1;}
-.bg-brand-name {display:block;font-size:18px;font-weight:750;letter-spacing:.04em;}
+.bg-brand {display:flex;align-items:center;gap:12px;min-width:0;}
+.bg-brand-text {min-width:0;}
+.bg-brand-mark {display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;border-radius:14px;background:var(--bg-accent-soft);color:var(--bg-accent);font-size:34px;line-height:1;}
+.bg-brand-name {display:block;font-size:18px;font-weight:750;letter-spacing:.04em;line-height:1.3;overflow-wrap:anywhere;}
 .bg-brand-caption {display:block;font-size:11px;color:var(--bg-muted);letter-spacing:.05em;}
 .bg-top-actions {display:flex;gap:4px;align-items:center;flex-shrink:0;}
 .bg-board-tabs {display:flex;gap:8px;overflow-x:auto;padding:2px 1px 17px;border-bottom:1px solid var(--bg-line);scrollbar-width:thin;}
@@ -203,6 +205,6 @@
   .bg-footer span:last-child {margin-top:7px;font-size:8px;}
 }
 @media (prefers-reduced-motion:reduce) {
-  .bg-root *, .bg-modal * {animation:none!important;transition:none!important;}
+  :is(.bg-root,.bg-modal,.bg-file-card) :is(.bg-btn,.bg-cell,.bg-progress-fill,.bg-line-pop,.bg-bingo-line,.bg-bingo-toast,.bg-bingo-confetti) {animation:none;transition:none;}
   .bg-root .bg-bingo-effects {display:none;}
 }

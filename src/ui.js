@@ -115,7 +115,7 @@ class GardenScreen {
     const frame=el(this.root,'div','bg-frame');
     const mast=el(frame,'header','bg-masthead');
     const brand=el(mast,'div','bg-brand');el(brand,'span','bg-brand-mark','✿');
-    const brandText=el(brand,'div');el(brandText,'span','bg-brand-name','Bingo 花园');el(brandText,'span','bg-brand-caption','让小小的完成，连成好日子');
+    const brandText=el(brand,'div','bg-brand-text');el(brandText,'span','bg-brand-name','Bingo Garden-Tasks list');el(brandText,'span','bg-brand-caption','让小小的完成，连成好日子');
     const topActions=el(mast,'div','bg-top-actions');
     button(topActions,this.archive?'返回棋盘':'已归档','bg-btn bg-quiet',()=>{this.archive=!this.archive;this.path=null;this.refresh();});
     button(topActions,'＋ 新棋盘','bg-btn bg-primary',()=>this.boardDialog());

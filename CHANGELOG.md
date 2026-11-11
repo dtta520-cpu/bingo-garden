@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.2
+
+- Rename the display name to **Bingo Garden-Tasks list** in the plugin manifest, view tab, ribbon tooltip, board header, and documentation. Keep the plugin ID and board folder stable so existing installations and boards continue to work.
+- Replace forced CSS overrides with scoped selectors, preserving reduced-motion behavior and the board layout.
+- Provide a complete English README and retain the Chinese guide in `README.zh-CN.md`.
+
 ## 1.3.1
 
 - 增加 Mac 安装说明和 macOS 27.2 / Apple Silicon / Obsidian 1.14.5 的真实操作验证记录。

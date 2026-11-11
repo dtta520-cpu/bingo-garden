@@ -12,7 +12,7 @@ class GardenModal extends Modal {
 class GardenView extends ItemView {
   constructor(leaf,plugin){super(leaf);this.plugin=plugin;}
   getViewType(){return VIEW;}
-  getDisplayText(){return 'Bingo 花园';}
+  getDisplayText(){return this.plugin.manifest.name;}
   getIcon(){return ICON;}
   async onOpen(){
     this.screen=new GardenScreen(this.contentEl,{
@@ -36,7 +36,7 @@ class BingoGardenPlugin extends Plugin {
     addIcon(ICON,'<g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="88" height="88" rx="10"/><path d="M35 6v88M65 6v88M6 35h88M6 65h88"/></g>');
     this.screens=new Set();this.store=new BoardStore(this.app.vault);
     this.registerView(VIEW,leaf=>new GardenView(leaf,this));
-    this.addRibbonIcon(ICON,'打开 Bingo 花园',()=>this.open());
+    this.addRibbonIcon(ICON,'打开 '+this.manifest.name,()=>this.open());
     this.addCommand({id:'open',name:'打开棋盘',callback:()=>this.open()});
     this.addCommand({id:'new-board',name:'新建棋盘',callback:async()=>{const view=await this.open();view.screen.boardDialog();}});
     const refresh=file=>{

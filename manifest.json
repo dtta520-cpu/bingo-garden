@@ -1,7 +1,7 @@
 {
   "id": "bingo-garden",
-  "name": "Bingo Garden",
-  "version": "1.3.1",
+  "name": "Bingo Garden-Tasks list",
+  "version": "1.3.2",
   "minAppVersion": "1.14.4",
   "description": "Turn tasks into customizable bingo boards with quick entry, automatic icons, and line-completion celebrations.",
   "author": "dtta520-cpu",

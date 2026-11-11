@@ -1,13 +1,13 @@
 # 在 Mac 的 Obsidian 中使用
 
-Bingo Garden 1.3.1 使用与 1.3.0 相同的运行逻辑，已经使用跨平台的 Obsidian 接口，Mac 使用同一个插件包，无需独立 App、服务器或 Node.js。
+当前插件名称为 **Bingo Garden-Tasks list**。Mac 使用同一个插件包，无需独立 App、服务器或 Node.js。1.3.2 更新名称、样式规则和说明文档；下方 Mac 真机记录来自 1.3.0。
 
 1. 使用 Obsidian 1.14.4 或以上版本。
 2. 将安装包内的 `bingo-garden` 文件夹放入笔记库的 `.obsidian/plugins/`。
 3. 在 Finder 中按 `Command + Shift + .` 可显示 `.obsidian` 隐藏文件夹。
 4. 确认目录直接包含 `main.js`、`manifest.json` 和 `styles.css`。
-5. 打开 Obsidian 的“设置 → 第三方插件”，启用 Bingo Garden。
-6. 点击左侧棋盘图标，或用 `Command + P` 搜索“Bingo Garden”，创建棋盘。
+5. 打开 Obsidian 的“设置 → 第三方插件”，启用 Bingo Garden-Tasks list。
+6. 点击左侧棋盘图标，或用 `Command + P` 搜索“Bingo Garden-Tasks list”，创建棋盘。
 
 更新只需替换运行文件，保留笔记库中的 `Bingo Garden/` 文件夹。该文件夹中的 Markdown 保存棋盘、任务和进度。
 

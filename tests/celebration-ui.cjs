@@ -46,6 +46,12 @@ const qa=path.resolve(__dirname,'../../qa');fs.mkdirSync(qa,{recursive:true});
     await prepare(3,[0,1,2,3,5,6,7,8]);await click(4);
     assert.equal(await page.locator('.bg-bingo-stroke').count(),4);assert.equal(await page.locator('.bg-line-pop').count(),9);
     assert.match(await page.locator('.bg-bingo-toast').innerText(),/4 条连线/);
+    // A preference change must also stop effects already mounted, via the CSS cascade.
+    await page.emulateMedia({reducedMotion:'reduce'});
+    assert.equal(await effect().evaluate(e=>getComputedStyle(e).display),'none');
+    assert.ok(await page.locator('.bg-line-pop,.bg-bingo-line,.bg-bingo-toast,.bg-bingo-confetti').evaluateAll(nodes=>nodes.every(e=>getComputedStyle(e).animationName==='none')));
+    assert.ok(await page.locator('.bg-btn,.bg-cell,.bg-progress-fill').evaluateAll(nodes=>nodes.every(e=>getComputedStyle(e).transitionDuration==='0s')));
+    await page.emulateMedia({reducedMotion:'no-preference'});
     await page.getByRole('button',{name:'编辑格子',exact:true}).click();await effect().waitFor({state:'detached',timeout:500});
     await page.getByRole('button',{name:'✓ 完成编辑',exact:true}).click();assert.equal(await effect().count(),0);
     // A restored/completed board and board switching do not replay animations.
