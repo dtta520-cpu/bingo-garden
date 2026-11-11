@@ -4,7 +4,7 @@ Turn tasks into customizable bingo boards inside Obsidian. Check off small tasks
 
 [简体中文使用说明](README.zh-CN.md) · [Community listing](https://community.obsidian.md/plugins/bingo-garden) · [Download](https://github.com/dtta520-cpu/bingo-garden/releases/latest)
 
-**Version 1.3.2.** Free and MIT licensed. The interface is in Chinese. No separate account, subscription, server, or Tasks plugin is required.
+**Version 1.3.3.** Free and MIT licensed. The interface is in Chinese. No separate account, subscription, server, or Tasks plugin is required.
 
 ![Bingo board with example tasks](./screenshots/bingo-garden.png)
 
@@ -37,6 +37,8 @@ Mobile devices need their own installed and enabled copy of the plugin. Syncing 
 ## Using a board
 
 Create a board, choose its size, and add tasks. Use the input above the grid for quick entry: Enter submits the tasks, while Shift + Enter adds a line break. Pasted lines fill empty cells in order. If there is insufficient space, the whole input is kept for editing and existing tasks are not overwritten.
+
+The new-board button and board tabs stay visible while you scroll. A full board also offers a direct button to create another board. After creation, the view returns to the new board's top and shows a confirmation; earlier boards remain available in their tabs.
 
 Click a task in normal mode to toggle completion. In edit mode, change titles directly in cells; Enter or Tab saves and moves forward, Shift + Tab moves backward, and Escape discards the current unsaved title. Open a cell's details to change its icon or notes. Clear the title in the details dialog to empty the cell.
 
@@ -77,7 +79,7 @@ The standalone preview uses the same interface and board-update code but stores 
 
 ## Release notes and support
 
-Version 1.3.2 updates the display name, replaces forced CSS overrides with scoped rules, and separates the English and Chinese documentation. See the [changelog](CHANGELOG.md) for earlier releases.
+Version 1.3.3 makes new-board creation accessible while scrolling and from a full board, and adds a clear success confirmation. Version 1.3.2 updated the display name, CSS overrides, and documentation. See the [changelog](CHANGELOG.md) for earlier releases.
 
 Report reproducible issues through [GitHub Issues](https://github.com/dtta520-cpu/bingo-garden/issues). Include the plugin version, Obsidian version, platform, and steps to reproduce. Use a small example board instead of sharing private notes.
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.3
+
+- Keep the new-board button and board tabs visible while scrolling, including on narrow screens.
+- Add a direct new-board action when the current board is full.
+- Scroll to the new board's top and show a confirmation after creation.
+- Add regression coverage for creating multiple boards, preserving existing boards, scrolling, and persistence after reopening.
+
 ## 1.3.2
 
 - Rename the display name to **Bingo Garden-Tasks list** in the plugin manifest, view tab, ribbon tooltip, board header, and documentation. Keep the plugin ID and board folder stable so existing installations and boards continue to work.

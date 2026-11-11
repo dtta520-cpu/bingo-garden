@@ -18,6 +18,8 @@
 .workspace-leaf-content[data-type="bingo-garden-view"] .view-content.bg-root {padding:0;}
 .bg-root *, .bg-modal * {box-sizing:border-box;}
 .bg-frame {max-width:1080px;margin:0 auto;padding:32px 40px 22px;}
+.bg-board-header {position:sticky;top:0;z-index:6;background:var(--bg-paper);padding-top:12px;margin-top:-12px;}
+.bg-root .bg-new-board-cta {margin-top:8px;}
 .bg-root button,.bg-modal button,.bg-file-card button {font:inherit;cursor:pointer;box-shadow:none;height:auto;white-space:normal;color:var(--bg-ink);}
 .bg-root button:focus-visible,.bg-root textarea:focus-visible,.bg-modal button:focus-visible,.bg-modal input:focus-visible,.bg-modal textarea:focus-visible,.bg-modal select:focus-visible,.bg-root summary:focus-visible {outline:3px solid var(--bg-accent);outline-offset:3px;}
 .bg-root button:disabled,.bg-modal button:disabled {cursor:default;opacity:.5;}

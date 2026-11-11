@@ -1,6 +1,6 @@
 {
   "name": "bingo-garden",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "private": true,
   "description": "Bingo Garden-Tasks list: turn tasks into local bingo boards in Obsidian.",
   "scripts": {

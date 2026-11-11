@@ -113,13 +113,14 @@ class GardenScreen {
     }
     this.root.dataset.theme=board?.theme||'peach';
     const frame=el(this.root,'div','bg-frame');
-    const mast=el(frame,'header','bg-masthead');
+    const header=el(frame,'div','bg-board-header');
+    const mast=el(header,'header','bg-masthead');
     const brand=el(mast,'div','bg-brand');el(brand,'span','bg-brand-mark','✿');
     const brandText=el(brand,'div','bg-brand-text');el(brandText,'span','bg-brand-name','Bingo Garden-Tasks list');el(brandText,'span','bg-brand-caption','让小小的完成，连成好日子');
     const topActions=el(mast,'div','bg-top-actions');
     button(topActions,this.archive?'返回棋盘':'已归档','bg-btn bg-quiet',()=>{this.archive=!this.archive;this.path=null;this.refresh();});
     button(topActions,'＋ 新棋盘','bg-btn bg-primary',()=>this.boardDialog());
-    const boards=el(frame,'nav','bg-board-tabs');boards.setAttribute('aria-label',this.archive?'已归档棋盘':'我的棋盘');
+    const boards=el(header,'nav','bg-board-tabs');boards.setAttribute('aria-label',this.archive?'已归档棋盘':'我的棋盘');
     const visible=this.rows.filter(r=>r.board&&r.board.archived===this.archive);
     for(const r of visible){
       const s=M.stats(r.board);
@@ -235,6 +236,7 @@ class GardenScreen {
     input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){e.preventDefault();this.addQuick(row);}});
     const hint=el(wrap,'div','bg-quick-hint',available?`Enter 添加 · Shift + Enter 换行 · 每行一项，填入空格 · 剩余 ${available} 格`:'这张棋盘已满。编辑格子可直接修改名称，也可以新建一张棋盘。');
     hint.id='bg-quick-hint-'+row.board.id;input.setAttribute('aria-describedby',hint.id);
+    if(!available)button(wrap,'新建另一张棋盘','bg-btn bg-secondary bg-new-board-cta',()=>this.boardDialog());
     const error=el(wrap,'div','bg-form-error',this.quickErrors.get(row.path)||'');error.setAttribute('role','alert');
   }
   async addQuick(row){
@@ -314,6 +316,7 @@ class GardenScreen {
           });
         }else result=await this.host.store.create(M.createBoard({title:title.value,size:Number(size.value),reward:reward.value,theme:getTheme()}));
         this.path=result.path;this.archive=false;this.edit=false;await this.refresh();
+        if(!current){this.root.scrollTop=0;this.host.notice('已创建棋盘：'+result.board.title);}
       },current?'保存设置':'创建棋盘');
     });
   }
