@@ -15,11 +15,11 @@ const {pathToFileURL}=require('node:url');const path=require('node:path');const 
     await page.getByRole('textbox',{name:'快速输入待办',exact:true}).press('Enter');
     await page.waitForFunction(()=>document.querySelectorAll('.bg-cell:not(.is-empty)').length===3);
     assert.deepEqual(await page.locator('.bg-cell:not(.is-empty) .bg-cell-emoji').allTextContents(),['📖','🏃','💻']);
-    await page.getByRole('button',{name:'编辑格子',exact:true}).click();
+    await page.getByRole('button',{name:'编辑内容',exact:true}).click();
     await page.getByLabel('1号格事项名称',{exact:true}).fill('喝一杯咖啡');
     await page.getByLabel('1号格事项名称',{exact:true}).press('Enter');
     await page.waitForFunction(()=>document.querySelector('.bg-cell-emoji').textContent==='☕');
-    await page.getByRole('button',{name:'1号格详情',exact:true}).click();
+    await page.getByRole('button',{name:'1号格图标和备注',exact:true}).click();
     assert.equal(await page.getByLabel('按事项内容自动搭配图标',{exact:true}).isChecked(),true);
     await page.getByLabel('格子图标',{exact:true}).fill('🦊');
     assert.equal(await page.getByLabel('按事项内容自动搭配图标',{exact:true}).isChecked(),false);
@@ -27,7 +27,7 @@ const {pathToFileURL}=require('node:url');const path=require('node:path');const 
     await page.getByLabel('1号格事项名称',{exact:true}).fill('看书');
     await page.getByLabel('1号格事项名称',{exact:true}).press('Enter');
     await page.waitForFunction(()=>!window.screenApp.saving.size);assert.equal(await page.locator('.bg-cell-emoji').first().textContent(),'🦊');
-    await page.getByRole('button',{name:'1号格详情',exact:true}).click();
+    await page.getByRole('button',{name:'1号格图标和备注',exact:true}).click();
     await page.getByLabel('按事项内容自动搭配图标',{exact:true}).check();
     await page.getByRole('button',{name:'保存',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('.bg-cell-emoji').textContent==='📖');
@@ -46,8 +46,8 @@ const {pathToFileURL}=require('node:url');const path=require('node:path');const 
     await page.reload();await page.locator('.is-done').waitFor();assert.deepEqual(await page.locator('.bg-cell-emoji').allTextContents(),before);
     const qa=path.resolve(__dirname,'../../qa');fs.mkdirSync(qa,{recursive:true});
     await page.screenshot({path:path.join(qa,'automatic-icons.png'),fullPage:true});
-    await page.getByRole('button',{name:'编辑格子',exact:true}).click();
-    await page.getByRole('button',{name:'1号格详情',exact:true}).click();
+    await page.getByRole('button',{name:'编辑内容',exact:true}).click();
+    await page.getByRole('button',{name:'1号格图标和备注',exact:true}).click();
     await page.setViewportSize({width:390,height:1100});
     await page.screenshot({path:path.join(qa,'automatic-icons-mobile-detail.png'),fullPage:true});
     assert.equal(await page.locator('dialog').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);

@@ -52,7 +52,7 @@ const qa=path.resolve(__dirname,'../../qa');fs.mkdirSync(qa,{recursive:true});
     assert.ok(await page.locator('.bg-line-pop,.bg-bingo-line,.bg-bingo-toast,.bg-bingo-confetti').evaluateAll(nodes=>nodes.every(e=>getComputedStyle(e).animationName==='none')));
     assert.ok(await page.locator('.bg-btn,.bg-cell,.bg-progress-fill').evaluateAll(nodes=>nodes.every(e=>getComputedStyle(e).transitionDuration==='0s')));
     await page.emulateMedia({reducedMotion:'no-preference'});
-    await page.getByRole('button',{name:'编辑格子',exact:true}).click();await effect().waitFor({state:'detached',timeout:500});
+    await page.getByRole('button',{name:'编辑内容',exact:true}).click();await effect().waitFor({state:'detached',timeout:500});
     await page.getByRole('button',{name:'✓ 完成编辑',exact:true}).click();assert.equal(await effect().count(),0);
     // A restored/completed board and board switching do not replay animations.
     await prepare(3,[0,1]);await click(2);

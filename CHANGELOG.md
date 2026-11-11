@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.4
+
+- Expose board settings and copying a new round directly above the grid.
+- Group bulk entry with quick task entry and offer expansion when a board is full.
+- Rename editing controls and show a visible icon/notes button below each editable cell.
+- Label the archive with a count and show a direct restore action for archived boards.
+- Explain completion, editing, and new rounds in the interface, including narrow layouts.
+- Preserve existing boards and completion records when expanding, copying, archiving, and restoring.
+- Wait for pending inline edits before copying a new round so the latest task text is included.
+
 ## 1.3.3
 
 - Keep the new-board button and board tabs visible while scrolling, including on narrow screens.

@@ -81,6 +81,7 @@ class GardenScreen {
         const fresh=M.lines(result.board).filter(l=>!oldIds.has(l.id));
         if(fresh.length)this.celebrate(result.board,fresh);
       }
+      return result;
     }catch(e){this.host.notice(e.message||'操作失败，请重试。');await this.refresh();}
     finally {this.busy=false;this.root.removeAttribute('aria-busy');}
   }
@@ -118,13 +119,14 @@ class GardenScreen {
     const brand=el(mast,'div','bg-brand');el(brand,'span','bg-brand-mark','✿');
     const brandText=el(brand,'div','bg-brand-text');el(brandText,'span','bg-brand-name','Bingo Garden-Tasks list');el(brandText,'span','bg-brand-caption','让小小的完成，连成好日子');
     const topActions=el(mast,'div','bg-top-actions');
-    button(topActions,this.archive?'返回棋盘':'已归档','bg-btn bg-quiet',()=>{this.archive=!this.archive;this.path=null;this.refresh();});
+    const archivedCount=this.rows.filter(r=>r.board?.archived).length;
+    button(topActions,this.archive?'返回我的棋盘':`归档箱 (${archivedCount})`,'bg-btn bg-quiet',()=>{this.archive=!this.archive;this.path=null;this.edit=false;this.root.scrollTop=0;this.refresh();});
     button(topActions,'＋ 新棋盘','bg-btn bg-primary',()=>this.boardDialog());
     const boards=el(header,'nav','bg-board-tabs');boards.setAttribute('aria-label',this.archive?'已归档棋盘':'我的棋盘');
     const visible=this.rows.filter(r=>r.board&&r.board.archived===this.archive);
     for(const r of visible){
       const s=M.stats(r.board);
-      const b=button(boards,`${r.board.title}  ${s.done}/${s.filled}`,'bg-board-tab'+(r.path===this.path?' is-active':''),()=>{this.path=r.path;this.edit=false;this.render();});
+      const b=button(boards,`${r.board.title}  ${s.done}/${s.filled}`,'bg-board-tab'+(r.path===this.path?' is-active':''),()=>{this.path=r.path;this.edit=false;this.root.scrollTop=0;this.render();});
       b.setAttribute('aria-current',String(r.path===this.path));b.title=r.board.title;
     }
     const errors=this.rows.filter(r=>r.error);
@@ -136,7 +138,7 @@ class GardenScreen {
     if(!board){
       const empty=el(frame,'section','bg-empty');
       el(empty,'div','bg-empty-art','✦');el(empty,'h1','',this.archive?'还没有归档棋盘':'从一个小格子开始');
-      el(empty,'p','',this.archive?'完成一轮后，可以把棋盘归档，留下你的进展。':'装下一点工作、一点生活，再给自己一点奖励。');
+      el(empty,'p','',this.archive?'在棋盘的「更多」中选择「归档棋盘」，即可收进这里；以后可以恢复。':'装下一点工作、一点生活，再给自己一点奖励。');
       if(!this.archive){
         button(empty,'创建我的第一张棋盘','bg-btn bg-primary',()=>this.boardDialog());
         button(empty,'看看示例棋盘','bg-btn bg-quiet',()=>this.demo());
@@ -160,26 +162,33 @@ class GardenScreen {
     el(progress,'div','bg-progress-foot',`${s.percent}% 完成　·　${s.wins.length} 条 Bingo`);
     const tools=el(frame,'div','bg-toolbar');
     const meta=el(tools,'div','bg-board-meta');el(meta,'span','bg-size-pill',`${board.size} × ${board.size}`);
-    el(meta,'span','bg-help',this.edit?'直接改名称 · Enter / Tab 保存并跳到下一格':'点事项完成 · 点空格添加');
+    el(meta,'span','bg-help',board.archived?'已归档 · 只读':this.edit?'正在编辑内容':'我的待办');
     const actions=el(tools,'div','bg-tools-actions');
     if(!board.archived){
-      const toggle=button(actions,this.edit?'✓ 完成编辑':'编辑格子','bg-btn bg-secondary',async()=>{
+      const toggle=button(actions,this.edit?'✓ 完成编辑':'编辑内容','bg-btn bg-secondary',async()=>{
         if(this.edit){for(const c of board.cells)await this.saveInline(row,c);if(board.cells.some(c=>this.drafts.has(c.id)))return;}
         this.edit=!this.edit;this.render();
       });toggle.setAttribute('aria-pressed',String(this.edit));
-      button(actions,'批量添加','bg-btn bg-secondary',()=>this.bulkDialog(row));
+      button(actions,'棋盘设置','bg-btn bg-secondary',()=>this.boardDialog(row)).title='修改名称、尺寸、配色和连线奖励';
     }
+    button(actions,'复制新一轮','bg-btn bg-secondary',()=>this.duplicateBoard(row)).title='保留待办、重新计数；当前棋盘和完成记录保留';
     const more=el(actions,'details','bg-more');el(more,'summary','bg-btn bg-secondary','更多 ⋯');
     const menu=el(more,'div','bg-menu');
     const menuButton=(label,fn)=>button(menu,label,'bg-menu-item',()=>{more.open=false;fn();});
-    if(!board.archived)menuButton('棋盘设置',()=>this.boardDialog(row));
-    menuButton('复制为新一轮',()=>this.perform(async()=>this.host.store.create(M.duplicate(await this.host.store.read(row.path)))));
     if(!board.archived){
       const shuffle=menuButton('打乱格子',()=>this.perform(()=>this.host.store.update(row.path,b=>{if(b.archived)throw new Error('棋盘已归档。');M.shuffle(b);})));
-      shuffle.disabled=s.done>0;shuffle.title=s.done>0?'保留已有连线；复制为新一轮后可以打乱':'';
+      shuffle.disabled=s.done>0;shuffle.title=s.done>0?'保留已有连线；复制新一轮后可以打乱':'';
     }
-    menuButton(board.archived?'恢复棋盘':'归档棋盘',()=>this.perform(()=>this.host.store.update(row.path,b=>{b.archived=!board.archived;})));
+    if(!board.archived)menuButton('归档棋盘',()=>this.toggleArchive(row));
     menuButton('打开棋盘文件',()=>this.host.openFile(row.path));
+    if(board.archived){
+      const archived=el(frame,'div','bg-archive-notice');
+      el(archived,'span','','棋盘已归档，内容和完成记录都在。恢复后可以继续编辑。');
+      button(archived,'恢复到我的棋盘','bg-btn bg-primary',()=>this.toggleArchive(row));
+    }else{
+      el(frame,'p','bg-interaction-hint',this.edit?'直接修改格子里的文字；按 Enter 保存并下一格。点「图标 / 备注」修改更多内容。':'点格子标记完成，再点撤销；完成的待办会保留。修改文字、图标或备注，请点「编辑内容」。');
+      if(s.full)el(frame,'p','bg-round-hint','整张完成啦！点「复制新一轮」沿用这些待办，从零开始；本轮记录会保留。');
+    }
     if(!board.archived)this.quickEntry(frame,row);
     const celebration=el(frame,'div','bg-celebration',this.celebrationBoard===board.id?this.celebrationText||'':'');celebration.setAttribute('role','status');celebration.setAttribute('aria-live','polite');celebration.hidden=!(this.celebrating&&this.celebrationBoard===board.id);
     const area=el(frame,'section','bg-board-area');
@@ -222,21 +231,42 @@ class GardenScreen {
     input.addEventListener('compositionstart',()=>{this.composing=true;});
     input.addEventListener('compositionend',()=>{this.composing=false;queueMicrotask(()=>{if(this.renderPending&&!this.closed){this.renderPending=false;this.render();}});});
   }
+  async duplicateBoard(row){
+    if(this.edit){
+      for(const c of row.board.cells)await this.saveInline(row,c);
+      if(row.board.cells.some(c=>this.drafts.has(c.id)))return;
+    }
+    const result=await this.perform(async()=>this.host.store.create(M.duplicate(await this.host.store.read(row.path))));
+    if(result){this.edit=false;this.render();this.root.scrollTop=0;this.host.notice('已复制新一轮，原棋盘和完成记录已保留。');}
+  }
+  async toggleArchive(row){
+    const result=await this.perform(()=>this.host.store.update(row.path,b=>{b.archived=!row.board.archived;}));
+    if(result){this.edit=false;this.render();this.root.scrollTop=0;this.host.notice(result.board.archived?'已放入归档箱，随时可以恢复。':'已恢复到我的棋盘。');}
+  }
   quickEntry(frame,row){
     const available=row.board.cells.filter(c=>!c.title.trim()&&!c.note.trim()).length;
     const wrap=el(frame,'section','bg-quick');wrap.setAttribute('aria-label','快速添加事项');
+    const heading=el(wrap,'div','bg-quick-heading');
+    const label=el(heading,'div','bg-quick-label');el(label,'strong','',available?'添加待办':'棋盘已满');
+    if(available)el(label,'span','',`还可添加 ${available} 项`);
+    if(available)button(heading,'批量添加','bg-btn bg-secondary',()=>this.bulkDialog(row));
     const line=el(wrap,'div','bg-quick-line');
+    line.hidden=!available&&!this.quickDrafts.get(row.path);
     const input=el(line,'textarea','bg-quick-input');input.rows=1;
     input.setAttribute('aria-label','快速输入待办');input.setAttribute('data-focus-key','quick:'+row.path);
-    input.placeholder=available?'输入一件小事，按 Enter 添加；也可粘贴多行':'棋盘已满，可在「更多 → 棋盘设置」扩大尺寸';
+    input.placeholder=available?'输入待办，按 Enter 添加；也可粘贴多行':'棋盘已满，可扩大棋盘或新建另一张';
     input.value=this.quickDrafts.get(row.path)||'';input.readOnly=!!this.quickSaving;
     const submit=button(line,this.quickSaving?'添加中…':'＋ 添加','bg-btn bg-primary',()=>this.addQuick(row));
     const sync=()=>{this.quickDrafts.set(row.path,input.value);submit.disabled=!available||!input.value.trim()||!!this.quickSaving;input.style.height='auto';input.style.height=Math.min(140,Math.max(44,input.scrollHeight))+'px';};
     input.addEventListener('input',sync);this.trackComposition(input);sync();
     input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){e.preventDefault();this.addQuick(row);}});
-    const hint=el(wrap,'div','bg-quick-hint',available?`Enter 添加 · Shift + Enter 换行 · 每行一项，填入空格 · 剩余 ${available} 格`:'这张棋盘已满。编辑格子可直接修改名称，也可以新建一张棋盘。');
+    const hint=el(wrap,'div','bg-quick-hint',available?'Enter 添加 · Shift + Enter 换行 · 每行一项，填入空格':row.board.size<6?'待办已填满，可扩大棋盘继续添加；已有事项和完成记录会保留。':'已达到 6 × 6。可编辑已有内容，或新建另一张棋盘。');
     hint.id='bg-quick-hint-'+row.board.id;input.setAttribute('aria-describedby',hint.id);
-    if(!available)button(wrap,'新建另一张棋盘','bg-btn bg-secondary bg-new-board-cta',()=>this.boardDialog());
+    if(!available){
+      const fullActions=el(wrap,'div','bg-full-actions');
+      if(row.board.size<6)button(fullActions,'扩大棋盘','bg-btn bg-secondary',()=>this.boardDialog(row));
+      button(fullActions,'新建另一张棋盘','bg-btn bg-secondary',()=>this.boardDialog());
+    }
     const error=el(wrap,'div','bg-form-error',this.quickErrors.get(row.path)||'');error.setAttribute('role','alert');
   }
   async addQuick(row){
@@ -275,7 +305,7 @@ class GardenScreen {
         e.preventDefault();e.stopPropagation();this.drafts.delete(c.id);this.render();
       }
     });
-    button(card,'详情','bg-cell-details',async()=>{await this.saveInline(row,c);if(this.drafts.has(c.id))return;const latest=this.rows.find(r=>r.path===row.path);const cell=latest?.board?.cells.find(x=>x.id===c.id);if(cell&&!latest.board.archived)this.cellDialog(latest,cell,index);}).setAttribute('aria-label',`${index+1}号格详情`);
+    button(card,'图标 / 备注','bg-cell-details',async()=>{await this.saveInline(row,c);if(this.drafts.has(c.id))return;const latest=this.rows.find(r=>r.path===row.path);const cell=latest?.board?.cells.find(x=>x.id===c.id);if(cell&&!latest.board.archived)this.cellDialog(latest,cell,index);}).setAttribute('aria-label',`${index+1}号格图标和备注`);
   }
   async saveInline(row,c,nextId){
     if(this.saving.has(c.id)){await this.saving.get(c.id);return;}
@@ -299,7 +329,7 @@ class GardenScreen {
   boardDialog(row){
     const current=row?.board;
     this.host.dialog(current?'棋盘设置':'种下一张新棋盘',(root,close)=>{
-      el(root,'p','bg-dialog-intro',current?'换个名字、配色，或者给自己安排一个小奖励。':'大目标也可以轻轻开始。选一个刚刚好的尺寸。');
+      el(root,'p','bg-dialog-intro',current?'在这里修改名称、尺寸、配色和连线奖励。':'大目标也可以轻轻开始。选一个刚刚好的尺寸。');
       const title=field(root,'棋盘名称',current?.title||'');title.placeholder='例如：这周的小小进展';title.maxLength=80;
       const size=select(root,'棋盘尺寸',current?.size||5,M.SIZES.map(n=>[String(n),`${n} × ${n} · ${n*n} 格`]));
       if(current)el(root,'p','bg-field-hint','修改尺寸会依次重新排列已有事项，并重新计算连线；已有完成记录保留。');

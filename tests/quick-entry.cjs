@@ -45,7 +45,7 @@ const {pathToFileURL}=require('node:url');const path=require('node:path');const 
     await quick.fill('只添加一次');await quick.press('Enter');await quick.press('Enter');
     await page.waitForFunction(()=>document.querySelectorAll('.bg-cell:not(.is-empty)').length===5);
     assert.equal((await saved()).cells.filter(c=>c.title==='只添加一次').length,1);
-    await page.getByRole('button',{name:'编辑格子',exact:true}).click();
+    await page.getByRole('button',{name:'编辑内容',exact:true}).click();
     await title(1).fill('直接改名称');await title(1).press('Enter');
     await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='2号格事项名称');
     assert.equal((await saved()).cells[0].title,'直接改名称');
@@ -66,19 +66,19 @@ const {pathToFileURL}=require('node:url');const path=require('node:path');const 
     assert.equal((await saved()).cells[0].title,'另一端最新内容');assert.equal(await title(1).inputValue(),'不能覆盖另一端');
     await title(1).press('Escape');assert.equal(await title(1).inputValue(),'另一端最新内容');
     await title(6).fill('填写空格');await page.getByRole('button',{name:'✓ 完成编辑',exact:true}).click();
-    await page.getByRole('button',{name:'编辑格子',exact:true}).waitFor();assert.equal((await saved()).cells[5].title,'填写空格');
+    await page.getByRole('button',{name:'编辑内容',exact:true}).waitFor();assert.equal((await saved()).cells[5].title,'填写空格');
     await page.reload();await quick.waitFor();assert.equal((await saved()).cells[5].title,'填写空格');
     const qa=path.resolve(__dirname,'../../qa');fs.mkdirSync(qa,{recursive:true});
     await quick.fill('喝一杯水\n给植物浇水');
     await page.screenshot({path:path.join(qa,'quick-entry-desktop.png'),fullPage:true});
     for(const width of [320,390,768,1200]){await page.setViewportSize({width,height:1100});assert.equal(await page.locator('#garden').evaluate(e=>e.scrollWidth>e.clientWidth+1),false,'quick overflow '+width);}
     await page.setViewportSize({width:390,height:1100});await page.screenshot({path:path.join(qa,'quick-entry-mobile.png'),fullPage:true});
-    await page.getByRole('button',{name:'编辑格子',exact:true}).click();
+    await page.getByRole('button',{name:'编辑内容',exact:true}).click();
     await title(1).scrollIntoViewIfNeeded();await page.screenshot({path:path.join(qa,'inline-edit-mobile.png'),fullPage:true});
     assert.equal(await page.locator('#garden').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);
     await page.getByRole('button',{name:'✓ 完成编辑',exact:true}).click();
     await page.locator('summary').click();await page.getByRole('button',{name:'归档棋盘',exact:true}).click();
-    await page.getByRole('button',{name:'返回棋盘',exact:true}).waitFor();assert.equal(await quick.count(),0);
+    await page.getByRole('button',{name:'返回我的棋盘',exact:true}).waitFor();assert.equal(await quick.count(),0);
     assert.deepEqual(errors,[]);
     fs.writeFileSync(path.join(qa,'quick-entry-results.json'),JSON.stringify({passed:true,checks:['enter-add','paste-lines','shift-enter','IME-enter','draft-refresh-selection','atomic-overflow','write-failure-recovery','double-enter','inline-enter-tab-shift-tab','escape','blur-save','same-cell-conflict-draft','finish-edit','reload','responsive','archive'],browserErrors:errors},null,2));
     console.log('Quick entry and inline editing verification passed.');

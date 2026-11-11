@@ -4,7 +4,7 @@ Turn tasks into customizable bingo boards inside Obsidian. Check off small tasks
 
 [简体中文使用说明](README.zh-CN.md) · [Community listing](https://community.obsidian.md/plugins/bingo-garden) · [Download](https://github.com/dtta520-cpu/bingo-garden/releases/latest)
 
-**Version 1.3.3.** Free and MIT licensed. The interface is in Chinese. No separate account, subscription, server, or Tasks plugin is required.
+**Version 1.3.4.** Free and MIT licensed. The interface is in Chinese. No separate account, subscription, server, or Tasks plugin is required.
 
 ![Bingo board with example tasks](./screenshots/bingo-garden.png)
 
@@ -40,7 +40,9 @@ Create a board, choose its size, and add tasks. Use the input above the grid for
 
 The new-board button and board tabs stay visible while you scroll. A full board also offers a direct button to create another board. After creation, the view returns to the new board's top and shows a confirmation; earlier boards remain available in their tabs.
 
-Click a task in normal mode to toggle completion. In edit mode, change titles directly in cells; Enter or Tab saves and moves forward, Shift + Tab moves backward, and Escape discards the current unsaved title. Open a cell's details to change its icon or notes. Clear the title in the details dialog to empty the cell.
+Board settings and copying a new round are available directly above the grid. Bulk entry is beside the task-entry heading. Full boards offer an expand action until the 6 by 6 limit. Archived boards show a restore button and remain read-only until restored.
+
+Click a task in normal mode to toggle completion. In edit mode, change titles directly in cells; Enter or Tab saves and moves forward, Shift + Tab moves backward, and Escape discards the current unsaved title. Use the visible icon/notes button below a cell in edit mode to change its icon or notes. Clear the title in the details dialog to empty the cell.
 
 Every cell in a winning line must contain a task and be complete. Empty cells do not count, and there is no automatic free center cell. Only newly completed lines animate. Reopening a completed board does not replay the animation. The system's reduced-motion setting disables animation while preserving the static completion message.
 
@@ -79,7 +81,7 @@ The standalone preview uses the same interface and board-update code but stores 
 
 ## Release notes and support
 
-Version 1.3.3 makes new-board creation accessible while scrolling and from a full board, and adds a clear success confirmation. Version 1.3.2 updated the display name, CSS overrides, and documentation. See the [changelog](CHANGELOG.md) for earlier releases.
+Version 1.3.4 exposes board settings, new rounds, icon/note editing, and archive restoration directly, with clearer task-entry and full-board actions. See the [changelog](CHANGELOG.md) for earlier releases.
 
 Report reproducible issues through [GitHub Issues](https://github.com/dtta520-cpu/bingo-garden/issues). Include the plugin version, Obsidian version, platform, and steps to reproduce. Use a small example board instead of sharing private notes.
 
